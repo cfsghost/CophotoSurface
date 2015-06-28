@@ -4,6 +4,18 @@ block body
 	script.
 
 		$(function() {
+			function setBusy(o) {
+				if (o) {
+					$('#takePhotoInput').prop('disabled', true);
+					$('.button-label').hide();
+					$('.spinner').show();
+				} else {
+					$('#takePhotoInput').prop('disabled', false).removeAttr('disabled'); 
+					$('.spinner').hide();
+					$('.button-label').show();
+				}
+			}
+
 			function uploadFile() {
 				var fd = new FormData();
 
@@ -25,29 +37,88 @@ block body
 
 			function uploadProgress(evt) {}
 
-			function uploadComplete(evt) {}
+			function uploadComplete(evt) {
+				alert('上傳成功！');
+				setBusy(false);
+			}
 
-			function uploadFailed(evt) {}
+			function uploadFailed(evt) {
+				alert('上傳失敗！請檢查您的網路狀態後重新拍照上傳！');
+				setBusy(false);
+			}
 
 			function uploadCanceled(evt) {}
 
 			$('#takePhotoInput').change(function() {
-				uploadFile();
-				//alert(document.getElementById('takePhotoInput').files[0].name);
+				setBusy(true);
+
+				var count = document.getElementById('takePhotoInput').files.length;
+				if (!count) {
+					setBusy(false);
+					return;
+				}
+
+				var file = document.getElementById('takePhotoInput').files[0];
+
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					$('.photo-loader').attr('src', e.target.result);
+					/*
+					$('body').css({
+						'background-image': 'url(' + e.target.result + ')'
+					});
+					*/
+
+					uploadFile();
+				};
+				reader.readAsDataURL(file);
+			});
+
+			$('.photo-loader').on('load', function() {
+				var $img = $('.photo-loader');
+				EXIF.getData($img[0], function() {
+					$preview = $('.photo-preview');
+					switch(parseInt(EXIF.getTag(this, "Orientation"))) {
+						case 2:
+							$preview.addClass('flip'); break;
+						case 3:
+							$preview.addClass('rotate-180'); break;
+						case 4:
+							$preview.addClass('flip-and-rotate-180'); break;
+						case 5:
+							$preview.addClass('flip-and-rotate-270'); break;
+						case 6:
+							$preview.addClass('rotate-90'); break;
+						case 7:
+							$preview.addClass('flip-and-rotate-90'); break;
+						case 8:
+							$preview.addClass('rotate-270'); break;
+					}
+
+					$preview.css({
+						'background-image': 'url(' + $img.attr('src') + ')'
+					});
+				});
 			});
 		});
 
+	div.photo-preview
+		img.photo-loader
+
 	div.upload-page.text-center
 		div.upload-button
-			div.takephoto-label
+			div.spinner
+				div.takephoto-label
+					div.container
+						span.circles-loader
+						br
+						br
+						span 照片上傳中
+
+			div.takephoto-label.button-label
 				div.container
 					span.fa.fa-camera(style='font-size: 48pt;')
 					br
 					span 立即拍照
 			input(id="takePhotoInput", type="file", accept="image/*;capture=camera")
-
-
-	//
-		div#App
-		script(type='text/javascript', src='/views/TakeApp.js')
 

@@ -1,0 +1,37 @@
+extends layout
+
+block body
+	script.
+		$(function() {
+			var updatedTime = '';
+
+			function poll() {
+				console.log('x', updatedTime);
+				$.ajax({
+					url: '/events/' + updatedTime,
+					type: 'get',
+					timeout: 120000,
+					complete: poll,
+					success: function(data) {
+						updatedTime = data.ts;
+						console.log(data);
+						if (!data.photos)
+							return;
+
+						for (var index in data.photos) {
+							var photo = data.photos[index];
+							var $frame = $('<div>').addClass('photo');
+							var $img = $('<img>')
+								.addClass('photo-image')
+								.attr('src', '/photo/' + photo.id);
+							$frame.append($img);
+							$('#surface').append($frame);
+						}
+					}
+				});
+			}
+
+			poll();
+		});
+
+	div#surface
