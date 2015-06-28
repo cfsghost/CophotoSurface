@@ -33,6 +33,15 @@ router.post('/', function *() {
     this.body = 'done';
 });
 
+router.get('/events', function *() {
+
+	this.set('Cache-Control', 'no-cache');
+
+	this.body = {
+		ts: Date.now()
+	};
+});
+
 router.get('/events/:ts', function *() {
 
 	this.set('Cache-Control', 'no-cache');

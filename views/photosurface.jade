@@ -20,7 +20,10 @@ block body
 
 						for (var index in data.photos) {
 							var photo = data.photos[index];
-							var $frame = $('<div>').addClass('photo');
+							var a = Math.random() * 10 - 5;
+							var $frame = $('<div>')
+								.addClass('photo')
+								.css('transform', 'rotate(' + a + 'deg)');
 							var $img = $('<img>')
 								.addClass('photo-image')
 								.attr('src', '/photo/' + photo.id);
