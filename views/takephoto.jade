@@ -1,0 +1,18 @@
+extends layout
+
+block body
+
+	div.upload-page.text-center
+		div.upload-button
+			div.takephoto-label
+				div.container
+					span.fa.fa-camera(style='font-size: 48pt;')
+					br
+					span Take Photo
+			input(id="takePhotoInput", type="file", accept="image/*;capture=camera")
+
+
+	//
+		div#App
+		script(type='text/javascript', src='/views/TakeApp.js')
+
