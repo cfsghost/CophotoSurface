@@ -1,6 +1,41 @@
 extends layout
 
 block body
+	script.
+
+		$(function() {
+			function uploadFile() {
+				var fd = new FormData();
+
+				var count = document.getElementById('takePhotoInput').files.length;
+				if (!count)
+					return;
+
+				var file = document.getElementById('takePhotoInput').files[0];
+				fd.append(file.name, file);
+
+				var xhr = new XMLHttpRequest();
+				xhr.upload.addEventListener('progress', uploadProgress, false);
+				xhr.addEventListener('load', uploadComplete, false);
+				xhr.addEventListener('error', uploadFailed, false);
+				xhr.addEventListener('abort', uploadCanceled, false);
+				xhr.open('POST', '/uploadphoto');
+				xhr.send(fd);
+			}
+
+			function uploadProgress(evt) {}
+
+			function uploadComplete(evt) {}
+
+			function uploadFailed(evt) {}
+
+			function uploadCanceled(evt) {}
+
+			$('#takePhotoInput').change(function() {
+				uploadFile();
+				//alert(document.getElementById('takePhotoInput').files[0].name);
+			});
+		});
 
 	div.upload-page.text-center
 		div.upload-button
@@ -8,7 +43,7 @@ block body
 				div.container
 					span.fa.fa-camera(style='font-size: 48pt;')
 					br
-					span Take Photo
+					span 立即拍照
 			input(id="takePhotoInput", type="file", accept="image/*;capture=camera")
 
 
