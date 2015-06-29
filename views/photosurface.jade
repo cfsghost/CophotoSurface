@@ -6,7 +6,6 @@ block body
 			var updatedTime = '';
 
 			function poll() {
-				console.log('x', updatedTime);
 				$.ajax({
 					url: '/events/' + updatedTime,
 					type: 'get',
@@ -18,20 +17,46 @@ block body
 						if (!data.photos)
 							return;
 
-						for (var index in data.photos) {
-							var photo = data.photos[index];
-							var a = Math.random() * 10 - 5;
-							var $frame = $('<div>')
-								.addClass('photo')
-								.css('transform', 'rotate(' + a + 'deg)');
-							var $img = $('<img>')
-								.addClass('photo-image')
-								.attr('src', '/photo/' + photo.id);
-							$frame.append($img);
-							$('#surface').append($frame);
-						}
+						async.eachSeries(data.photos, function(item, next) {
+							addPhoto(item.id, next);
+						});
 					}
 				});
+			}
+
+			function addPhoto(id, callback) {
+				var deg = Math.floor(Math.random() * 50) - 30;
+				var $frame = $('<div>')
+					.addClass('photo')
+					.css({
+						left: Math.floor(Math.random() * ($(document).width() - 320)) + 'px',
+						top: Math.floor(Math.random() * ($(document).height() - 260)) + 'px'
+					})
+					.hide();
+				var $img = $('<img>')
+					.addClass('photo-image')
+					.load(function() {
+
+						if (this.height > this.width) {
+							$frame.css({
+								left: Math.floor(Math.random() * ($(document).width() - 240)) + 'px',
+								top: Math.floor(Math.random() * ($(document).height() - 400)) + 'px'
+							});
+						}
+						
+						$frame.show(function() {
+							$frame.css({
+								'transform': 'rotate(' + deg + 'deg) scale(1.0)',
+							});
+
+							setTimeout(function() {
+								callback();
+							}, 1000);
+						});
+					})
+					.attr('src', '/photo/' + id);
+				$frame.append($img);
+				$('#surface').append($frame);
 			}
 
 			poll();

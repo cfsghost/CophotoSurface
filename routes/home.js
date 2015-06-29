@@ -3,17 +3,22 @@ var os = require('os');
 var path = require('path');
 var events = require('events');
 var cofs = require('co-fs');
+var sharp = require('sharp');
 var parse = require('co-busboy');
 var Router = require('koa-router');
 
 var dispatcher = new events.EventEmitter();
+dispatcher.setMaxListeners(0);
 
 /* Loading photo list */
+var uploadDir = path.join(__dirname, '..', 'uploads');
 var photoDir = path.join(__dirname, '..', 'photo');
 var dataList = [];
 fs.readdir(photoDir, function(err, list) {
 	for (var index in list) {
 		photo = list[index];
+		if (photo[0] == '.')
+			continue;
 
 		var id = photo.split('.')[0];
 		dataList.push({
@@ -38,7 +43,8 @@ router.get('/events', function *() {
 	this.set('Cache-Control', 'no-cache');
 
 	this.body = {
-		ts: Date.now()
+		ts: Date.now(),
+		photos: dataList
 	};
 });
 
@@ -70,6 +76,7 @@ router.get('/events/:ts', function *() {
 	this.body = result;
 
 	if (!list.length) {
+		var self = this;
 		yield function(callback) {
 
 			dispatcher.once('newphoto', function() {
@@ -96,10 +103,25 @@ router.post('/uploadphoto', function *() {
 
 	// Save one file only
 	var part = yield parts;
-	var filename = path.join(photoDir, Id + path.extname(part.filename));
+	var filename = path.join(uploadDir, Id + path.extname(part.filename));
+	var targetFilename = path.join(photoDir, Id + '.jpg');
 	var stream = fs.createWriteStream(filename);
 	part.pipe(stream);
-	console.log('uploading %s -> %s', part.filename, stream.path);
+
+	stream.on('close', function() {
+
+		sharp(stream.path).rotate().jpeg().quality(100).toFile(targetFilename, function() {
+
+			console.log('uploading %s -> %s -> %s', part.filename, stream.path, targetFilename);
+
+			fs.unlink(stream.path, function() {
+
+				dispatcher.emit('newphoto');
+			});
+		});
+	});
+
+//	console.log('uploading %s -> %s', part.filename, stream.path);
 
 	this.body = {
 		id: Id 
@@ -109,8 +131,6 @@ router.post('/uploadphoto', function *() {
 		id: Id,
 		ts: Id
 	});
-
-	dispatcher.emit('newphoto');
 });
 
 router.get('/photo/:id', function *() {

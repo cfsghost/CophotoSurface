@@ -29,7 +29,8 @@
     "koa-router": ">=3.7.0",
     "koa-session": ">=2.0.0",
     "koa-static": ">=1.4.8",
-    "koa-views": ">=2.1.2"
+    "koa-views": ">=2.1.2",
+    "sharp": "^0.10.1"
   },
   "devDependencies": {
     "gulp": ">=3.7.0",

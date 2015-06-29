@@ -59,21 +59,21 @@ block body
 				}
 
 				var file = document.getElementById('takePhotoInput').files[0];
-
+				uploadFile();
+				return;
 				var reader = new FileReader();
 				reader.onload = function(e) {
-					$('.photo-loader').attr('src', e.target.result);
+					//$('.photo-loader').attr('src', e.target.result);
 					/*
 					$('body').css({
 						'background-image': 'url(' + e.target.result + ')'
 					});
 					*/
 
-					uploadFile();
 				};
 				reader.readAsDataURL(file);
 			});
-
+			/*
 			$('.photo-loader').on('load', function() {
 				var $img = $('.photo-loader');
 				EXIF.getData($img[0], function() {
@@ -100,6 +100,7 @@ block body
 					});
 				});
 			});
+			*/
 		});
 
 	div.photo-preview
