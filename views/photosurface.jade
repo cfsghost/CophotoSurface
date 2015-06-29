@@ -25,12 +25,12 @@ block body
 			}
 
 			function addPhoto(id, callback) {
-				var deg = Math.floor(Math.random() * 50) - 30;
+				var deg = Math.floor(Math.random() * 50) - 25;
 				var $frame = $('<div>')
 					.addClass('photo')
 					.css({
-						left: Math.floor(Math.random() * ($(document).width() - 320)) + 'px',
-						top: Math.floor(Math.random() * ($(document).height() - 260)) + 'px'
+						left: Math.floor(Math.random() * ($(window).width() - 220) - 100) + 'px',
+						top: Math.floor(Math.random() * ($(window).height() - 120) - 120) + 'px'
 					})
 					.hide();
 				var $img = $('<img>')
@@ -39,8 +39,8 @@ block body
 
 						if (this.height > this.width) {
 							$frame.css({
-								left: Math.floor(Math.random() * ($(document).width() - 240)) + 'px',
-								top: Math.floor(Math.random() * ($(document).height() - 400)) + 'px'
+								left: Math.floor(Math.random() * ($(window).width() - 200) - 40) + 'px',
+								top: Math.floor(Math.random() * ($(window).height() - 475) - 25) + 'px'
 							});
 						}
 						

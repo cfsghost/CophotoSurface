@@ -45,6 +45,7 @@ block body
 			function uploadFailed(evt) {
 				alert('上傳失敗！請檢查您的網路狀態後重新拍照上傳！');
 				setBusy(false);
+				location.reload();
 			}
 
 			function uploadCanceled(evt) {}
