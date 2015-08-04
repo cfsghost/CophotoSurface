@@ -241,11 +241,6 @@ console.log('DONE');
 	this.body = {
 		id: Id 
 	};
-
-	dataList.push({
-		id: Id,
-		ts: Id
-	});
 });
 
 router.get('/incoming/:id', function *() {
@@ -269,6 +264,65 @@ router.get('/incoming/:id', function *() {
 		this.status = 404;
 		this.body = 'Not Found';
 	}
+});
+
+router.get('/incoming/:id/:action', function *() {
+	var id = this.params.id;
+	var action = this.params.action;
+
+	var filename = path.join(pendingDir, id);
+
+	if (!id)
+		return;
+
+	if (yield cofs.exists(filename + '.jpg')) {
+		filename += filename + '.jpg';
+	} else if (yield cofs.exists(filename + '.png')) {
+		filename += filename + '.png';
+	} else if (yield cofs.exists(filename + '.gif')) {
+		filename += filename + '.gif';
+	} else {
+		this.status = 404;
+		this.body = 'Not Found';
+	}
+
+	if (action == 'approve') {
+		// Move photo to specific directory
+		var moveCmd = child_process.spawn('mv', [ filename, photoDir ]);
+		moveCmd.on('close', function() {
+
+			for (index in pendingList) {
+				var photo = pendingList[index];
+
+				if (photo.id == id) {
+					pendingList.splice(index, 1);
+					break;
+				}
+			}
+
+			dataList.push({
+				id: id,
+				ts: Date.now();
+			});
+
+			dispatcher.emit('newphoto');
+		});
+	} else {
+		var rmCmd = child_process.spawn('rm', [ '-fr', filename ]);
+		rmCmd.on('close', function() {
+
+			for (index in pendingList) {
+				var photo = pendingList[index];
+
+				if (photo.id == id) {
+					pendingList.splice(index, 1);
+					break;
+				}
+			}
+		});
+	}
+
+	this.body = 'Done';
 });
 
 router.get('/photo/:id', function *() {
