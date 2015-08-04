@@ -1,9 +1,10 @@
 extends layout
 
 block body
-	style
-		body {
+	style.
+		html, body {
 			overflow: auto;
+			background: black;
 		}
 
 	script.
@@ -59,7 +60,7 @@ block body
 							*/
 							setTimeout(function() {
 								callback();
-							}, 100);
+							}, 0);
 						});
 					})
 					.attr('src', '/incoming/' + id);
