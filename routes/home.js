@@ -182,12 +182,24 @@ router.get('/takephoto', function *() {
     yield this.render('takephoto');
 });
 
-router.post('/uploadphoto', function *() {
+router.post('/uploadphoto', function *(next) {
 
 	if (!this.request.is('multipart/*'))
 		return yield next;
 
-	var parts = parse(this);
+	//console.log(this.req);
+
+	var parts = parse(this, {
+		partsLimit: function() {
+			console.log('partsLimit');
+		},
+		filesLimit: function() {
+			console.log('filesLimit');
+		},
+		fieldsLimit: function() {
+			console.log('fieldsLimit');
+		}
+	});
 	var part;
 
 	// Getting target path to put file
@@ -195,14 +207,21 @@ router.post('/uploadphoto', function *() {
 
 	// Save one file only
 	var part = yield parts;
+//console.log(part);
 	var filename = path.join(uploadDir, Id + path.extname(part.filename));
 	var targetFilename = path.join(tmpDir, Id + '.jpg');
 	var stream = fs.createWriteStream(filename);
 	part.pipe(stream);
 
+	part.on('data', function(chunk) {
+		console.log(chunk.length);
+	});
+//console.log(1);
 	stream.on('close', function() {
+//console.log(2);
 
 		sharp(stream.path).rotate().jpeg().quality(100).toFile(targetFilename, function() {
+//console.log(3);
 
 			console.log('uploading %s -> %s -> %s', part.filename, stream.path, targetFilename);
 
@@ -216,7 +235,7 @@ router.post('/uploadphoto', function *() {
 			});
 		});
 	});
-
+console.log('DONE');
 //	console.log('uploading %s -> %s', part.filename, stream.path);
 
 	this.body = {
