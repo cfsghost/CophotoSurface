@@ -33,8 +33,20 @@ fs.readdir(photoDir, function(err, list) {
 });
 
 fs.watch(photoDir, function(event, filename) {
-	if (event == 'rename')
-		dispatcher.emit('newphoto');
+	console.log('[photo]', event, filename);
+	if (event == 'rename') {
+		fs.exists(path.join(photoDir, filename), function(exists) {
+			if (!exists)
+				return;
+
+			var id = parseInt(filename.split('.')[0]);
+			dataList.push({
+				id: id,
+				ts: Date.now()
+			});
+			dispatcher.emit('newphoto');
+		});
+	}
 });
 
 // Pending
@@ -54,17 +66,20 @@ fs.readdir(pendingDir, function(err, list) {
 });
 
 fs.watch(pendingDir, function(event, filename) {
-	console.log(event, filename);
+	console.log('[pending]', event, filename);
 	if (event == 'rename') {
+		fs.exists(path.join(pendingDir, filename), function(exists) {
+			if (!exists)
+				return;
 
-		var ts = parseInt(filename.split('.')[0]);
-		console.log(ts);
-		pendingList.push({
-			id: ts,
-			ts: ts
+			var id = parseInt(filename.split('.')[0]);
+			pendingList.push({
+				id: id,
+				ts: Date.now()
+			});
+
+			dispatcher.emit('incoming', filename);
 		});
-
-		dispatcher.emit('incoming', filename);
 	}
 });
 
@@ -276,17 +291,18 @@ router.get('/incoming/:id/:action', function *() {
 		return;
 
 	if (yield cofs.exists(filename + '.jpg')) {
-		filename += filename + '.jpg';
+		filename += '.jpg';
 	} else if (yield cofs.exists(filename + '.png')) {
-		filename += filename + '.png';
+		filename += '.png';
 	} else if (yield cofs.exists(filename + '.gif')) {
-		filename += filename + '.gif';
+		filename += '.gif';
 	} else {
 		this.status = 404;
 		this.body = 'Not Found';
 	}
 
 	if (action == 'approve') {
+console.log('move', filename, photoDir);
 		// Move photo to specific directory
 		var moveCmd = child_process.spawn('mv', [ filename, photoDir ]);
 		moveCmd.on('close', function() {
@@ -299,11 +315,6 @@ router.get('/incoming/:id/:action', function *() {
 					break;
 				}
 			}
-
-			dataList.push({
-				id: id,
-				ts: Date.now();
-			});
 
 			dispatcher.emit('newphoto');
 		});
