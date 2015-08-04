@@ -27,35 +27,56 @@ block body
 			function addPhoto(id, callback) {
 				var deg = Math.floor(Math.random() * 50) - 25;
 				var $frame = $('<div>')
-					.addClass('photo')
+					.addClass('frame')
 					.css({
-						left: Math.floor(Math.random() * ($(window).width() - 220) - 100) + 'px',
-						top: Math.floor(Math.random() * ($(window).height() - 120) - 120) + 'px'
+						'transform': 'scale(1.0)',
+						left: 0,
+						top: 0,
+						width: '100%',
+						height: '100%'
 					})
 					.hide();
+				var $photo = $('<div>')
+					.addClass('photo');
 				var $img = $('<img>')
 					.addClass('photo-image')
 					.load(function() {
+						var self = this;
 
-						if (this.height > this.width) {
-							$frame.css({
-								left: Math.floor(Math.random() * ($(window).width() - 200) - 40) + 'px',
-								top: Math.floor(Math.random() * ($(window).height() - 475) - 25) + 'px'
+						if (self.height <= self.width) {
+							$photo.css({
+								width: '480px'
 							});
 						}
 						
 						$frame.show(function() {
-							$frame.css({
-								'transform': 'rotate(' + deg + 'deg) scale(1.0)',
-							});
+
+							setTimeout(function() {
+								var rangeL = Math.floor(Math.random() * ($(window).width() - self.width));
+								var rangeT = Math.floor(Math.random() * ($(window).height() - self.height));
+								var left = (rangeL - ($(window).width() + self.width) * 0.5);
+								left += rangeL * 0.6;
+								var top = rangeT;
+
+								if (self.height > self.width) {
+									$frame.css({
+										'transform': 'rotate(' + deg + 'deg) scale(0.7) translate(' + left + 'px,' + top + 'px)'
+									});
+								} else {
+									$frame.css({
+										'transform': 'rotate(' + deg + 'deg) scale(0.7) translate(' + left + 'px,' + top + 'px)'
+									});
+								}
+							}, 3000);
 
 							setTimeout(function() {
 								callback();
-							}, 1000);
+							}, 0);
 						});
 					})
 					.attr('src', '/photo/' + id);
-				$frame.append($img);
+				$photo.append($img);
+				$frame.append($photo);
 				$('#surface').append($frame);
 			}
 
