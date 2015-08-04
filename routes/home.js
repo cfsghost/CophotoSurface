@@ -4,8 +4,8 @@ var child_process = require('child_process');
 var path = require('path');
 var events = require('events');
 var cofs = require('co-fs');
-//var sharp = require('sharp');
-var sharp = '';
+var sharp = require('sharp');
+//var sharp = '';
 var parse = require('co-busboy');
 var Router = require('koa-router');
 
