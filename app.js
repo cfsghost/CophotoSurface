@@ -7,6 +7,7 @@ var bodyParser = require('koa-bodyparser');
 var views = require('koa-views');
 var serve = require('koa-static');
 var session = require('koa-session');
+var fs = require('fs');
 
 var app = koa();
 

@@ -1,0 +1,68 @@
+extends layout
+
+block body
+	script.
+		$(function() {
+			var updatedTime = '';
+
+			function poll() {
+				$.ajax({
+					url: '/pending/events/' + updatedTime,
+					type: 'get',
+					timeout: 120000,
+					complete: poll,
+					success: function(data) {
+						updatedTime = data.ts;
+						console.log(data);
+						if (!data.photos)
+							return;
+
+						async.eachSeries(data.photos, function(item, next) {
+							addPhoto(item.id, next);
+						});
+					}
+				});
+			}
+
+			function addPhoto(id, callback) {
+				var deg = Math.floor(Math.random() * 50) - 25;
+				var $frame = $('<div>')
+					.addClass('photo')
+					/*
+					.css({
+						left: Math.floor(Math.random() * ($(window).width() - 220) - 100) + 'px',
+						top: Math.floor(Math.random() * ($(window).height() - 120) - 120) + 'px'
+					})
+					*/
+					.hide();
+				var $img = $('<img>')
+					.addClass('photo-image')
+					.load(function() {
+						/*
+						if (this.height > this.width) {
+							$frame.css({
+								left: Math.floor(Math.random() * ($(window).width() - 200) - 40) + 'px',
+								top: Math.floor(Math.random() * ($(window).height() - 475) - 25) + 'px'
+							});
+						}
+						*/
+						$frame.show(function() {
+							/*
+							$frame.css({
+								'transform': 'rotate(' + deg + 'deg) scale(1.0)',
+							});
+							*/
+							setTimeout(function() {
+								callback();
+							}, 100);
+						});
+					})
+					.attr('src', '/incoming/' + id);
+				$frame.append($img);
+				$('#surface').append($frame);
+			}
+
+			poll();
+		});
+
+	div#surface
