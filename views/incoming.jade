@@ -27,7 +27,7 @@ block body
 			function addPhoto(id, callback) {
 				var deg = Math.floor(Math.random() * 50) - 25;
 				var $frame = $('<div>')
-					.addClass('photo')
+					.addClass('incomingphoto')
 					/*
 					.css({
 						left: Math.floor(Math.random() * ($(window).width() - 220) - 100) + 'px',
@@ -58,7 +58,9 @@ block body
 						});
 					})
 					.attr('src', '/incoming/' + id);
-				$frame.append($img);
+				var $yesBtn = $('<button></button>').text('Yes');
+				var $noBtn = $('<button></button>').text('no');
+				$frame.append($img).append($yesBtn).append($noBtn);
 				$('#surface').append($frame);
 			}
 
