@@ -64,8 +64,22 @@ block body
 						});
 					})
 					.attr('src', '/incoming/' + id);
-				var $yesBtn = $('<button></button>').text('Yes');
-				var $noBtn = $('<button></button>').text('no');
+				var $yesBtn = $('<button></button>')
+					.addClass('approve-button')
+					.text('Approve')
+					.on('click', function() {
+						$.get('/incoming/' + id + '/approve', function() {
+							$frame.hide().remove();
+						});
+					});
+				var $noBtn = $('<button></button>')
+					.addClass('reject-button')
+					.text('Reject')
+					.on('click', function() {
+						$.get('/incoming/' + id + '/reject', function() {
+							$frame.hide().remove();
+						});
+					});
 				$frame.append($img).append($yesBtn).append($noBtn);
 				$('#surface').append($frame);
 			}
