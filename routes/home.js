@@ -36,10 +36,22 @@ fs.watch(photoDir, function(event, filename) {
 	console.log('[photo]', event, filename);
 	if (event == 'rename') {
 		fs.exists(path.join(photoDir, filename), function(exists) {
-			if (!exists)
-				return;
-
 			var id = parseInt(filename.split('.')[0]);
+			if (!exists) {
+
+				// Remove photo from list
+				for (index in dataList) {
+					var photo = dataList[index];
+
+					if (photo.id == id) {
+						dataList.splice(index, 1);
+						dispatcher.emit('removephoto', id);
+						break;
+					}
+				}
+				return;
+			}
+
 			dataList.push({
 				id: id,
 				ts: Date.now()
